@@ -63,7 +63,61 @@ void start_new_game(t_player_info *p, t_data *list, int cnt)
 
 int change_poketmon(t_player_info *player)
 {
-    printf("000000\n");
+    int i = 0;
+    int choice;
+    int alive_count = 0;
+
+    printf("cnt === %d\n", alive_count);
+    printf("어느 포켓몬을 내보낼까?\n");
+
+    
+    while(i < player->poket_cnt)
+    {
+        if (player->my_list[0].name[0] == '\0')
+        {
+            printf("00000000\n");
+            break;
+        }
+        if(player->my_list[i].hp > 0)
+        {
+            printf("%d. %s %s %d/%d\n", i + 1, player->poketmon.name, player->poketmon.type,player->poketmon.hp, player->poketmon.my_full_hp);
+            alive_count++;
+            i++;
+        }
+    }
+    if (alive_count == 0)
+    {
+        printf("눈앞이 깜깜해졌다...\n");
+        player->money -= 1000;
+        if(player->money < 0)
+            player->money = 0;
+        printf("현재 잔액 : %d\n", player->money);
+        return(0);
+    }
+    while(i < player->poket_cnt)
+    {
+        if(player->my_list[i].hp > 0)
+        {
+            printf("%d. %s [%s] (HP: %d/%d)\n",
+                i + 1,
+                player->my_list[i].name,
+                player->my_list[i].type,
+                player->my_list[i].hp,
+                player->my_list[i].my_full_hp);
+        }
+        i++;
+    }
+    printf(">> ");
+    scanf("%d", &choice);
+    if (choice <= 0) 
+        return (0);
+    choice--;
+    if (choice < player->poket_cnt && player->my_list[choice].hp > 0)
+    {
+        player->poketmon = player->my_list[choice];
+        return (1);
+    }
+
     return(0);
 }
 
@@ -74,22 +128,21 @@ void attack_menu(t_player_info *player, t_my *wild)
 
     scanf("%d", &choice);
 
-    if (choice == 1) // 공격 선택
+    if (choice == 1)
     {
-        int turn = rand() % 2; // 0: 나 선공, 1: 야생 선공
+        int turn = rand() % 2;
         
         while (i < 2)
         {
-            float add = 1.0; // 루프 시작할 때 배율 초기화
+            float add = 1.0;
             int damage;
             
             printf("========================================\n");
             
-            if (turn == 0) // 내 차례
+            if (turn == 0)
             {
                 printf("%s의 공격!\n", player->poketmon.name);
                 
-                // 상성 계산 (나 -> 야생)
                 if ((strcmp(player->poketmon.type, "불") == 0 && strcmp(wild->type, "풀") == 0) ||
                     (strcmp(player->poketmon.type, "물") == 0 && strcmp(wild->type, "불") == 0) ||
                     (strcmp(player->poketmon.type, "풀") == 0 && strcmp(wild->type, "물") == 0))
@@ -100,24 +153,23 @@ void attack_menu(t_player_info *player, t_my *wild)
                     add = 0.5;
 
                 damage = (int)(player->poketmon.attack * add);
-                int crit = (rand() % 100 < 20); // 크리티컬 여부
+                int crit = (rand() % 100 < 20);
                 if (crit) damage *= 1.5;
 
-                wild->hp -= damage; // 상대 피 깎기
+                wild->hp -= damage;
                 printf("%s는 %d의 데미지를 입었다.\n", wild->name, damage);
                 
                 if (add == 1.5) printf("효과가 굉장했다!\n");
                 else if (add == 0.5) printf("효과가 별로인 듯 하다.\n");
                 if (crit) printf("급소에 맞았다!\n");
 
-                if (wild->hp <= 0) break; // 적이 죽으면 루프 종료
-                turn = 1; // 다음은 적 차례
+                if (wild->hp <= 0) break;
+                turn = 1;
             }
-            else // 야생 포켓몬 차례
+            else 
             {
                 printf("%s의 공격!\n", wild->name);
                 
-                // 상성 계산 (야생 -> 나)
                 if ((strcmp(wild->type, "불") == 0 && strcmp(player->poketmon.type, "풀") == 0) ||
                     (strcmp(wild->type, "물") == 0 && strcmp(player->poketmon.type, "불") == 0) ||
                     (strcmp(wild->type, "풀") == 0 && strcmp(player->poketmon.type, "물") == 0))
@@ -131,13 +183,13 @@ void attack_menu(t_player_info *player, t_my *wild)
                 int crit = (rand() % 100 < 20);
                 if (crit) damage *= 1.5;
 
-                player->poketmon.hp -= damage; // 내 피 깎기
+                player->poketmon.hp -= damage;
                 printf("%s는 %d의 데미지를 입었다.\n", player->poketmon.name, damage);
 
                 if (add == 1.5) printf("효과가 굉장했다!\n");
                 else if (add == 0.5) printf("효가과 별로인 듯 하다.\n");
                 if (crit) printf("급소에 맞았다!\n");
-                turn = 0; // 다음은 내 차례
+                turn = 0;
             }
             i++;
         }
@@ -145,6 +197,11 @@ void attack_menu(t_player_info *player, t_my *wild)
         {
             player->poketmon.hp = 0;
             printf("%s는 쓰러졌다.\n", player->poketmon.name);
+            printf("\t\t\t\t\t     야생 포켓몬: %s \n\t\t\t\t\t     (HP: %d/%d)\n", \
+            wild->name, wild->hp, wild->hp + 0);
+    
+            printf("\n내 포켓몬 (기절): %s \n(HP: %d/%d)\n", player->poketmon.name, \
+            player->poketmon.hp, player->poketmon.my_full_hp);
             if (change_poketmon(player) == 1)
                 printf("%s(이)가 새롭게 등장했다!\n", player->poketmon.name);
             else
@@ -188,8 +245,12 @@ void play_adventure(t_player_info *player, t_data *list, int cnt)
         printf("\t\t\t\t\t     야생 포켓몬: %s \n\t\t\t\t\t     (HP: %d/%d)\n", \
             wild.name, wild.hp, wild_max_hp);
         if (player->poketmon.hp == 0)
+        {
             printf("\n내 포켓몬 (기절): %s \n(HP: %d/%d)\n", player->poketmon.name, \
                 player->poketmon.hp, player->poketmon.my_full_hp);
+            printf("어느 포켓몬을 내보낼까?\n");
+
+        }
         else
             printf("\n내 포켓몬: %s \n(HP: %d/%d)\n", player->poketmon.name, \
                 player->poketmon.hp, player->poketmon.my_full_hp);
