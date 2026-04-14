@@ -11,7 +11,6 @@ typedef struct s_data
     char type[10];
     int min_attack;
     int min_hp;
-    // int wild_full_hp;
 } t_data;
 
 typedef struct s_my
@@ -30,4 +29,6 @@ typedef struct s_player_info
     t_my poketmon;
     int poket_cnt;
     int money;
+    int monster_ball;
+    int hiller;
 } t_player_info;
