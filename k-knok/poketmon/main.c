@@ -1,5 +1,6 @@
 #include "poketmon.h"
 
+
 int poketmon_load(t_data **list)
 {
     int cnt;
@@ -56,6 +57,13 @@ void    start_new_game(t_player_info *p, t_data *list, int cnt)
     printf("트레이너의 지갑에 10,000원이 추가되었습니다.\n");
 }
 
+void reset_player_data(t_player_info *p, t_data *list, int cnt)
+{
+    memset(p, 0, sizeof(t_player_info)); 
+    start_new_game(p, list, cnt); 
+}
+
+
 int change_poketmon(t_player_info *player)
 {
     int i = 0;
@@ -97,37 +105,50 @@ int change_poketmon(t_player_info *player)
         return (0); 
     }
 
-    printf("\n어느 포켓몬을 내보낼까?\n");
-    i = 0;
-    
-    while (i < player->poket_cnt)
+    while(1)
     {
-        if (player->my_list[i].hp > 0)
+        printf("\n어느 포켓몬을 내보낼까?\n");
+        i = 0;
+        
+        while (i < player->poket_cnt)
         {
-            printf("%d. %s [%s] (HP: %d/%d)\n",
-                i ,
-                player->my_list[i].name,
-                player->my_list[i].type,
-                player->my_list[i].hp,
-                player->my_list[i].my_full_hp);
-        }
-        i++;
-    }
-    printf("0. 도망가기\n");
-    printf(">> ");
-    scanf("%d", &choice);
-    if (choice <= 0) 
-        return (0);
 
-    int idx = choice ;
-    if (idx >= 0 && idx < player->poket_cnt && player->my_list[idx].hp > 0)
-    {
-        player->poketmon = player->my_list[idx];
-        return (1);
+                printf("%d. %s [%s] (HP: %d/%d)\n",
+                    i + 1 ,
+                    player->my_list[i].name,
+                    player->my_list[i].type,
+                    player->my_list[i].hp,
+                    player->my_list[i].my_full_hp);
+
+            i++;
+        }
+        printf("0. 도망가기\n");
+        printf(">> ");
+        scanf("%d", &choice);
+        if (choice <= 0)
+        {
+            printf("도망에 성공했다.\n");
+            return (0);
+        }
+    
+        int idx = choice - 1;
+        if (idx >= 0 && idx < player->poket_cnt)
+        {
+            if(player->my_list[idx].hp > 0)
+            {
+                player->poketmon = player->my_list[idx];
+                return (1);
+            }
+            else
+                printf("\n[!] %s은(는) 이미 기절해서 나갈 수 없습니다!\n", player->my_list[idx].name);
+        }
+        else
+            printf("잘못된 선택입니다.\n");
+
     }
-    printf("잘못된 선택입니다.\n");
-    return (0);
+
 }
+
 void wild_attack(t_player_info *player, t_my *wild, float *add, int *damage)
 {
 
@@ -182,8 +203,7 @@ void my_poketmon_die(t_player_info *player, t_my *wild, int wild_max_hp)
     
     printf("\n내 포켓몬 (기절): %s \n(HP: %d/%d)\n", player->poketmon.name, \
     player->poketmon.hp, player->poketmon.my_full_hp);
-    // if (change_poketmon(player) == 1)
-    //         printf("%s(이)가 새롭게 등장했다!\n", player->poketmon.name);   
+
 }
 
 void battle_poketmon(t_player_info *player, t_my *wild, int wild_max_hp)
@@ -283,9 +303,43 @@ void attack_menu(t_player_info *player, t_my *wild, int slect, int wild_max_hp)
     
 }
 
+int poketmon_master(t_player_info *player)
+{
+    char choice;
 
+    printf("\n========================================\n");
+    if (player->poket_cnt == 6)
+        printf("포켓몬 마스터가 되었다!\n");
+    else
+        printf("포켓몬 도감 (현재 %d마리)\n", player->poket_cnt);
 
-void play_adventure(t_player_info *player, t_data *list, int cnt)
+    int i = 0;
+    while (i < player->poket_cnt)
+    {
+        printf("%s  %d/%d\n", 
+                player->my_list[i].name, 
+                player->my_list[i].hp, 
+                player->my_list[i].my_full_hp);
+        i++;
+    }
+
+    printf("\n\n");
+    printf("포켓몬볼 x %d\n", player->monster_ball);
+    printf("상처약 x %d\n", player->hiller);
+    printf("\n지갑  %d원\n", player->money);
+    printf("\n========================================\n");
+    
+    printf("게임을 재시작하겠습니까? (Y/N)\n>> ");
+    while(getchar() != '\n'); // 버퍼 비우기
+    scanf(" %c", &choice);
+
+    if (choice == 'y' || choice == 'Y')
+        return 1; // 재시작 시그널
+    else
+        return 0; // 종료 시그널
+}
+
+int play_adventure(t_player_info *player, t_data *list, int cnt)
 {
     int i = rand() % cnt;
     t_my wild;
@@ -394,18 +448,22 @@ void play_adventure(t_player_info *player, t_data *list, int cnt)
                             printf("새로운 별명 입력: ");
                             scanf("%s", wild.name);
                         }
-                        if (player->poket_cnt < 6) 
+                        if (player->poket_cnt < 6)
                         {
                             player->my_list[player->poket_cnt] = wild;
                             player->my_list[player->poket_cnt].my_full_hp = wild_max_hp; 
                             player->poket_cnt++;
                             printf("%s(이)가 리스트에 추가되었습니다! (현재 %d마리)\n", wild.name, player->poket_cnt);
+                            if (player->poket_cnt == 6)
+                            {
+                                if (poketmon_master(player) == 1)
+                                {
+                                    
+                                    return (1);
+                                }
+                                return(0);
+                            }
                             break;
-                        }
-                        if (player->poket_cnt == 6) 
-                        {
-                            printf("\n========================================\n");
-                            printf("축하합니다! 포켓몬 마스터가 되었다!\n");
                         }
                         int idx = 0;
                         while (idx < player->poket_cnt)
@@ -417,7 +475,7 @@ void play_adventure(t_player_info *player, t_data *list, int cnt)
                             }
                             idx++;
                         }
-                        return ;
+                        return(0);
                         wild.hp = 0; // 전투 종료를 위해 wild hp 조절
                     }
                     else
@@ -483,11 +541,13 @@ void play_adventure(t_player_info *player, t_data *list, int cnt)
                 {
                     player->poketmon.hp = 0;
                     battle_poketmon(player, &wild, wild_max_hp);
+                    change_poketmon(player);
                     break;
                 }
             }
         }
     }
+    return (0);
 }
 
 void hill_poketmon(t_player_info *player)
@@ -597,6 +657,86 @@ void show_poketmon_book(t_player_info *player)
     getchar();
 }
 
+
+void save_game(t_player_info *player)
+{
+    FILE *fp = fopen("save_data.txt", "w");
+    if (fp == NULL)
+    {
+        printf("\n[오류] 저장 파일을 생성할 수 없습니다.\n");
+        return;
+    }
+
+    fprintf(fp, "%d %d %d %d\n", 
+            player->money, 
+            player->monster_ball, 
+            player->hiller, 
+            player->poket_cnt);
+
+    int i = 0;
+    while (i < player->poket_cnt)
+    {
+        fprintf(fp, "%s %s %d %d %d\n",
+                player->my_list[i].name,
+                player->my_list[i].type,
+                player->my_list[i].attack,
+                player->my_list[i].hp,
+                player->my_list[i].my_full_hp);
+        i++;
+    }
+
+    fclose(fp); // 파일 닫기
+    printf("\n========================================\n");
+    printf("진행 상황이 성공적으로 저장되었습니다!\n");
+    printf("========================================\n");
+}
+
+
+int load_game(t_player_info *player)
+{
+    FILE *fp = fopen("save_data.txt", "r");
+    
+    if (fp == NULL)
+    {
+        printf("\n[오류] 저장된 데이터가 없습니다!\n");
+        return 0; 
+    }
+
+    if (fscanf(fp, "%d %d %d %d", 
+           &player->money, 
+           &player->monster_ball, 
+           &player->hiller, 
+           &player->poket_cnt) == EOF) 
+    {
+        fclose(fp);
+        return 0;
+    }
+
+    int i = 0;
+    while (i < player->poket_cnt)
+    {
+        fscanf(fp, "%s %s %d %d %d",
+               player->my_list[i].name,
+               player->my_list[i].type,
+               &player->my_list[i].attack,
+               &player->my_list[i].hp,
+               &player->my_list[i].my_full_hp);
+        i++;
+    }
+
+    if (player->poket_cnt > 0)
+    {
+        player->poketmon = player->my_list[0];
+    }
+
+    fclose(fp);
+    printf("\n========================================\n");
+    printf("성공적으로 데이터를 불러왔습니다!\n");
+    printf("========================================\n");
+    return 1; 
+}
+
+
 int main()
 {
     srand(time(NULL));
@@ -605,81 +745,93 @@ int main()
     t_player_info player;
     int menu;
 
+
     cnt = poketmon_load(&list);
 
     if (cnt == 0)
         return (1);
-    printf("========================================\n");
-    printf("       K. Knock Pokemon Game\n\n");
-    printf("         press enter to start\n");
-    printf("========================================\n");
-    getchar();
-    printf("========================================\n");
-    printf("    1. 새로하기    2. 이어하기\n");
-    printf(">> ");
-    scanf("%d", &menu);
-
-    if (menu == 1)
-        start_new_game(&player, list, cnt);
-    else
+        
+    while (1)
     {
-        printf("이어하기 코드\n");
-        return (1);
-    }
-    while(1)
-    {
-        printf("\n========================================\n");
-        printf("모험을 진행하시겠습니까?\n");
-        printf("1. 네  2. 저장  3. 상점  4. 포켓몬센터  5. 포켓몬도감\n");
+        printf("========================================\n");
+        printf("       K. Knock Pokemon Game\n\n");
+        printf("         press enter to start\n");
+        printf("========================================\n");
+        getchar();
+        printf("========================================\n");
+        printf("    1. 새로하기    2. 이어하기\n");
         printf(">> ");
-        if (player.poketmon.hp != 0)
+        scanf("%d", &menu);
+        if (menu == 1 ) 
         {
-            int action;
-            scanf("%d", &action);
-            if (action == 1) 
+            start_new_game(&player, list, cnt);
+        }
+            
+        else if (menu == 2)
+        {
+            if (load_game(&player) == 0)
             {
-                play_adventure(&player, list, cnt);
-            }  
-            else if (action == 2) 
-                printf("게임을 저장합니다.\n");
-            else if (action == 3)
-            {
-                printf("////상점\n");
-                poketmon_shop(&player, list);
-            }
-            else if (action == 4)
-            {
-                hill_poketmon(&player);
-            }
-            else if (action == 5)
-            {
-                show_poketmon_book(&player);
+                continue; 
             }
         }
-        else if (player.poketmon.hp == 0)
-        {
-            int action;
-            scanf("%d", &action);
-            if (action == 1)
-                printf("포켓몬을 회복하세요.\n");
-            else if (action == 2)
-                printf("게임을 저장합니다.\n");
-            else if (action == 3)
-            {
-                printf("////상점\n");
-                poketmon_shop(&player, list);
-            }
-            else if (action == 4)
-            {
-                hill_poketmon(&player);
-            }
-            else if (action == 5)
-            {
-                show_poketmon_book(&player);
-            }
-        }
-    }
+        else
+            continue;
 
+        while(1)
+            {
+                printf("\n========================================\n");
+                printf("모험을 진행하시겠습니까?\n");
+                printf("1. 네  2. 저장  3. 상점  4. 포켓몬센터  5. 포켓몬도감\n");
+                printf(">> ");
+                if (player.poketmon.hp != 0)
+                {
+                    int action;
+                    scanf("%d", &action);
+                    if (action == 1) 
+                    {
+                        if (play_adventure(&player, list, cnt) == 1)
+                            break;
+                    }  
+                    else if (action == 2) 
+                        save_game(&player);
+                    else if (action == 3)
+                    {
+                        printf("////상점\n");
+                        poketmon_shop(&player, list);
+                    }
+                    else if (action == 4)
+                    {
+                        hill_poketmon(&player);
+                    }
+                    else if (action == 5)
+                    {
+                        show_poketmon_book(&player);
+                    }
+                }
+                else if (player.poketmon.hp == 0)
+                {
+                    int action;
+                    scanf("%d", &action);
+                    if (action == 1)
+                        printf("포켓몬을 회복하세요.\n");
+                    else if (action == 2)
+                        save_game(&player);
+                    else if (action == 3)
+                    {
+                        printf("////상점\n");
+                        poketmon_shop(&player, list);
+                    }
+                    else if (action == 4)
+                    {
+                        hill_poketmon(&player);
+                    }
+                    else if (action == 5)
+                    {
+                        show_poketmon_book(&player);
+                    }
+                }
+            }
+    }
     free(list);
     return (0);
 }
