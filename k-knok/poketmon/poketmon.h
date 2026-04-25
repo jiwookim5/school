@@ -30,5 +30,5 @@ typedef struct s_player_info
     int poket_cnt;
     int money;
     int monster_ball;
-    int hiller;
+    int healer;
 } t_player_info;
