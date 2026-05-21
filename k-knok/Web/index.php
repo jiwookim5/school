@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
     <title>게시글 목록</title>
 </head>
 <body>
-    <h2>📋 스터디 게시판</h2>
+    <h2>📋 게시판</h2>
     <p>반갑습니다, <strong><?php echo $_SESSION['username']; ?></strong>님! 
        <a href="write.php">[글쓰기]</a>
     </p>
