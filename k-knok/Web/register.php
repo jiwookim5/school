@@ -12,10 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // 🔒 보안 1: 비밀번호 안전하게 해시화 (강의자료 요구사항)
+    // 비밀번호 안전하게 해시화
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // 🔒 보안 2: SQL 인젝션 방지를 위한 Prepared Statement 사용
+    //SQL 인젝션 방지를 위한 Prepared Statement 사용
     // 먼저 아이디 중복 체크
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);

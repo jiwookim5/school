@@ -68,7 +68,6 @@ if (!$post) {
                 // 내가 쓴 댓글일 때만 [수정] 및 [삭제] 버튼 노출
         if ($_SESSION['user_id'] == $cRow['author_id']) {
             echo " <a href='comment_edit.php?id=" . $cRow['id'] . "&post_id=" . $post_id . "' style='font-size:11px; color:blue; text-decoration:none;'>[수정]</a>";
-            // [★확인] 이 주소 줄이 정확해야 합니다!
             echo " <a href='comment_delete_action.php?id=" . $cRow['id'] . "&post_id=" . $post_id . "' onclick=\"return confirm('댓글을 삭제하시겠습니까?');\" style='font-size:11px; color:red; text-decoration:none;'>[삭제]</a>";
             }
                 echo "</div>";

@@ -17,7 +17,6 @@ if ($row = $result->fetch_assoc()) {
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $username;
         
-        // 여기를 index.php로 바꿨습니다!
         echo "<script>alert('로그인 성공!'); location.href='index.php';</script>";
     } else {
         echo "<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>";

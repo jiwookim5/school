@@ -20,4 +20,4 @@ if ($stmt->execute()) {
 } else {
     echo "댓글 등록 오류: " . $conn->error;
 }
-?>
+?> 

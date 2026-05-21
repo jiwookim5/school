@@ -34,15 +34,15 @@ if (!isset($_SESSION['user_id'])) {
                 ORDER BY p.id DESC";
         $result = $conn->query($sql);
 
-        // [★ 핵심수정] 현재 검색된 총 게시글의 개수를 가상 번호의 시작점으로 잡습니다.
+        // 현재 검색된 총 게시글의 개수를 가상 번호의 시작점으로 잡기.
         $virtual_number = $result->num_rows;
 
         if ($virtual_number > 0) {
             while($row = $result->fetch_assoc()) {
                 echo "<tr>";
-                // DB의 row['id'] 대신, 1씩 줄어드는 가상 번호를 화면에 찍어줍니다.
+                // DB의 row['id'] 대신, 1씩 줄어드는 가상 번호를 화면에 찍어줌.
                 echo "<td>" . $virtual_number . "</td>";
-                // 상세보기 링크에는 여전히 DB 고유의 고유 ID(row['id'])를 넘겨주어야 정상 작동합니다!
+                // 상세보기 링크에는 여전히 DB 고유의 고유 ID(row['id'])를 넘겨주어야 정상 작동!
                 echo "<td style='text-align:left; padding-left:10px;'><a href='view.php?id=".$row['id']."'>".htmlspecialchars($row['title'])."</a></td>";
                 echo "<td>".htmlspecialchars($row['username'])."</td>";
                 echo "<td>".substr($row['created_at'], 0, 10)."</td>";
