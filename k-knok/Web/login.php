@@ -7,9 +7,7 @@
 <body>
     <h2>게시판 로그인</h2>
     <form action="login_action.php" method="POST">
-        <p>아이디: <input type="text" name="username" required placeholder="testuser 입력"></p>
-        <p>비밀번호: <input type="password" name="password" required placeholder="1234 입력"></p>
-        <button type="submit">로그인</button>
-    </form>
+    <input type="text" name="username"> <input type="password" name="password"> <button type="submit">로그인</button>
+</form>
 </body>
 </html>
