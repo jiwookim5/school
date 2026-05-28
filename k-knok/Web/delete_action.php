@@ -1,20 +1,27 @@
 <?php
+session_start();
 include 'db.php';
+
+// 세션에 로그인한 유저명이 없으면 차단
+if (!isset($_SESSION['username'])) {
+    echo "<script>alert('로그인이 필요합니다.'); location.href='login.php';</script>";
+    exit;
+}
 
 $post_id = $_GET['id'];
 
-// 1. 본인 확인 (이전 로직 활용)
+// 작성자 이름을 가져와서 비교
 $stmt = $conn->prepare("SELECT author_id FROM posts WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $post = $stmt->get_result()->fetch_assoc();
 
-if ($post['author_id'] != $_SESSION['user_id']) {
+// 여기서 'user_id' 대신 'username'을 비교합니다!
+if ($post['author_id'] != $_SESSION['username']) {
     echo "<script>alert('본인 글만 삭제 가능합니다.'); location.href='index.php';</script>";
     exit;
 }
 
-// 2. 게시글 삭제 (DB에서 CASCADE 설정이 되어있으므로 댓글은 자동 삭제됨)
 $deleteStmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
 $deleteStmt->bind_param("i", $post_id);
 

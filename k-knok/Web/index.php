@@ -1,8 +1,9 @@
 <?php
+session_start();
 include 'db.php';
 
 // 로그인 안 되어 있으면 로그인창으로
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_username'])) {
     header("Location: login.php");
     exit;
 }
@@ -15,8 +16,10 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 <body>
     <h2>📋 게시판</h2>
-    <p>반갑습니다, <strong><?php echo $_SESSION['username']; ?></strong>님! 
-       <a href="write.php">[글쓰기]</a>
+    <p>
+        반갑습니다, <strong><?php echo $_SESSION['username']; ?></strong>님! 
+        <a href="write.php">[글쓰기]</a> | 
+        <a href="logout.php" style="color: red;">[로그아웃]</a>
     </p>
     
     <table border="1" cellpadding="5" cellspacing="0" style="width: 600px; text-align: center;">
@@ -28,10 +31,10 @@ if (!isset($_SESSION['user_id'])) {
         </tr>
         <?php
         // posts와 users를 조인해서 데이터 가져오기
-        $sql = "SELECT p.id, p.title, u.username, p.created_at 
-                FROM posts p 
-                JOIN users u ON p.author_id = u.id 
-                ORDER BY p.id DESC";
+       $sql = "SELECT p.id, p.title, u.username, p.created_at 
+        FROM posts p 
+        JOIN users u ON p.author_id = u.username 
+        ORDER BY p.id DESC";
         $result = $conn->query($sql);
 
         // 현재 검색된 총 게시글의 개수를 가상 번호의 시작점으로 잡기.
