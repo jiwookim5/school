@@ -2,10 +2,17 @@
 session_start();
 include 'db.php';
 
+// 1. 게시판 종류와 글 번호를 받아옵니다
+$board = $_GET['board'] ?? 'free';
 $post_id = $_GET['id'] ?? null;
+
 if (!$post_id) { die("에러: 게시글 ID가 전달되지 않았습니다."); }
 
-$stmt = $conn->prepare("SELECT * FROM posts WHERE id = ?");
+// 2. 게시판 종류에 따른 테이블 명 설정
+$table = ($board == 'qna') ? 'posts_qna' : 'posts_free';
+
+// 3. 쿼리문 수정 (posts 대신 $table 변수 사용)
+$stmt = $conn->prepare("SELECT * FROM $table WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $post = $stmt->get_result()->fetch_assoc();
@@ -23,7 +30,11 @@ if (!$post) { die("에러: 존재하지 않는 게시글입니다."); }
         .post-content { min-height: 150px; line-height: 1.6; }
         .file-area { margin-top: 20px; padding: 10px; background: #f0f0f0; }
         .comment-area { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
-        .comment { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .comment { 
+            border-bottom: 1px solid #eee; 
+            padding: 10px 0; 
+            white-space: pre-wrap; /* 줄바꿈 유지 핵심 코드 */
+        }
         textarea { width: 100%; height: 60px; margin-top: 10px; }
     </style>
 </head>
@@ -57,27 +68,28 @@ if (!$post) { die("에러: 존재하지 않는 게시글입니다."); }
             while ($c = $comments->fetch_assoc()) {
                 echo "<div class='comment'>";
                 echo "<strong>" . htmlspecialchars($c['author_id']) . "</strong>: " . htmlspecialchars($c['content']);
-                echo nl2br(htmlspecialchars($c['content']));
-                // 댓글 작성자 본인일 경우에만 수정/삭제 버튼 표시
                 if (isset($_SESSION['username']) && $_SESSION['username'] == $c['author_id']) {
-                    echo " <small><a href='comment_edit.php?id=" . $c['id'] . "&post_id=" . $post_id . "'>[수정]</a>";
-                    echo " <a href='comment_delete_action.php?id=" . $c['id'] . "&post_id=" . $post_id . "' onclick='return confirm(\"삭제하시겠습니까?\");'>[삭제]</a></small>";
-    }
-    echo "</div>";
-}
+                    echo " <small><a href='comment_edit.php?id=" . $c['id'] . "&post_id=" . $post_id . "&board=" . $board . "'>[수정]</a>";
+                    echo " <a href='comment_delete_action.php?id=" . $c['id'] . "&post_id=" . $post_id . "&board=" . $board . "' onclick='return confirm(\"삭제하시겠습니까?\");'>[삭제]</a></small>";
+                }
+                echo "</div>";
+            }
             ?>
             
             <form action="comment_action.php" method="POST">
                 <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+                <input type="hidden" name="board" value="<?php echo htmlspecialchars($board); ?>">
                 <textarea name="content" required placeholder="댓글을 입력하세요"></textarea><br>
                 <button type="submit">댓글 작성</button>
             </form>
         </div>
 
         <div style="margin-top:20px;">
-            <a href="index.php">[목록으로]</a>
+            <a href="index.php?board=<?php echo htmlspecialchars($board); ?>">[목록으로]</a>
+            
             <?php if (isset($_SESSION['username']) && $_SESSION['username'] == $post['author_id']) { ?>
-                | <a href='edit.php?id=<?php echo $post['id']; ?>'>[수정]</a>
+                | <a href='edit.php?id=<?php echo $post['id']; ?>&board=<?php echo htmlspecialchars($board); ?>'>[수정]</a>
+                | <a href='delete_action.php?id=<?php echo $post['id']; ?>&board=<?php echo htmlspecialchars($board); ?>' onclick="return confirm('정말 삭제하시겠습니까?');">[삭제]</a>
             <?php } ?>
         </div>
     </div>

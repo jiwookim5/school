@@ -21,6 +21,8 @@ if ($comment['author_id'] != $_SESSION['username']) {
 <form action="comment_edit_action.php" method="POST">
     <input type="hidden" name="comment_id" value="<?php echo $comment_id; ?>">
     <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+    <input type="hidden" name="board" value="<?php echo htmlspecialchars($_GET['board']); ?>">
+    
     <textarea name="content" required><?php echo htmlspecialchars($comment['content']); ?></textarea>
     <button type="submit">수정 완료</button>
 </form>

@@ -7,36 +7,34 @@ if (!isset($_SESSION['username'])) {
 }
 
 $id = $_POST['id'];
+$board = $_POST['board'] ?? 'free';
 $title = $_POST['title'];
 $content = $_POST['content'];
+$table = ($board == 'qna') ? 'posts_qna' : 'posts_free'; // 테이블 선택
 
-$stmt = $conn->prepare("SELECT author_id FROM posts WHERE id = ?");
+$stmt = $conn->prepare("SELECT author_id FROM $table WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $post = $stmt->get_result()->fetch_assoc();
 
 if (!$post || $_SESSION['username'] != $post['author_id']) {
-    echo "<script>alert('권한이 없습니다.'); location.href='index.php';</script>";
+    echo "<script>alert('권한이 없습니다.'); location.href='index.php?board=$board';</script>";
     exit;
 }
 
-// 게시글 업데이트
-$stmt = $conn->prepare("UPDATE posts SET title=?, content=? WHERE id=?");
+// 업데이트
+$stmt = $conn->prepare("UPDATE $table SET title=?, content=? WHERE id=?");
 $stmt->bind_param("ssi", $title, $content, $id);
 $stmt->execute();
 
-// 파일 삭제 처리
+// 파일 처리 (기존과 동일)
 if (!empty($_POST['delete_files'])) {
     foreach ($_POST['delete_files'] as $file_id) {
         $file_res = $conn->query("SELECT file_path FROM post_files WHERE id = " . (int)$file_id)->fetch_assoc();
-        if ($file_res && file_exists($file_res['file_path'])) {
-            unlink($file_res['file_path']);
-        }
+        if ($file_res && file_exists($file_res['file_path'])) unlink($file_res['file_path']);
         $conn->query("DELETE FROM post_files WHERE id = " . (int)$file_id);
     }
 }
-
-// 새 파일 추가
 if (!empty($_FILES['upload_file']['name'][0])) {
     $upload_dir = 'uploads/';
     if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
@@ -52,5 +50,5 @@ if (!empty($_FILES['upload_file']['name'][0])) {
     }
 }
 
-echo "<script>alert('수정되었습니다.'); location.href='view.php?id=$id';</script>";
+echo "<script>alert('수정되었습니다.'); location.href='view.php?id=$id&board=$board';</script>";
 ?>

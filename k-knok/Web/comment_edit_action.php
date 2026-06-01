@@ -10,6 +10,7 @@ if (!isset($_SESSION['username'])) {
 $comment_id = $_POST['comment_id'];
 $post_id = $_POST['post_id'];
 $content = $_POST['content'];
+$board = $_POST['board'] ?? 'free';
 
 // 다시 한번 본인 확인 (우수 보안)
 $stmt = $conn->prepare("SELECT author_id FROM comments WHERE id = ?");

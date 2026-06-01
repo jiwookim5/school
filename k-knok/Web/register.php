@@ -1,4 +1,5 @@
 <?php
+
 // register.php
 include 'db.php';
 
