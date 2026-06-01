@@ -1,23 +1,25 @@
 <?php
+session_start();
 include 'db.php';
 
-if (!isset($_SESSION['user_id'])) {
+// 여기서 'user_id'를 'username'으로 변경했습니다!
+if (!isset($_SESSION['username'])) { 
     echo "<script>alert('로그인이 필요한 기능입니다.'); location.href='login.php';</script>";
     exit;
 }
 
 $post_id = $_POST['post_id'];
 $content = $_POST['content'];
-$author_id = $_SESSION['user_id'];
+// 세션에서 username 값을 가져오도록 변경
+$author_id = $_SESSION['username']; 
 
 // comments 테이블에 데이터 삽입
 $stmt = $conn->prepare("INSERT INTO comments (post_id, author_id, content) VALUES (?, ?, ?)");
-$stmt->bind_param("iis", $post_id, $author_id, $content);
+$stmt->bind_param("iss", $post_id, $author_id, $content); // "iss"로 변경 (author_id가 문자열이므로)
 
 if ($stmt->execute()) {
-    // 댓글 쓰기가 끝나면 보던 상세 페이지로 바로 새로고침하듯 복귀!
     header("Location: view.php?id=" . $post_id);
 } else {
     echo "댓글 등록 오류: " . $conn->error;
 }
-?> 
+?>

@@ -1,7 +1,8 @@
 <?php
+session_start();
 include 'db.php';
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['username'])) {
     echo "<script>alert('권한이 없습니다.'); location.href='login.php';</script>";
     exit;
 }
@@ -16,7 +17,7 @@ $stmt->bind_param("i", $comment_id);
 $stmt->execute();
 $comment = $stmt->get_result()->fetch_assoc();
 
-if ($comment['author_id'] != $_SESSION['user_id']) {
+if ($comment['author_id'] != $_SESSION['username']) {
     echo "<script>alert('권한이 없습니다.'); location.href='index.php';</script>";
     exit;
 }

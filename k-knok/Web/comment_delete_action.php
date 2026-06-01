@@ -1,11 +1,12 @@
 <?php
+session_start();
 include 'db.php';
 
 // 디버깅: 에러가 나면 무조건 화면에 출력하게 설정
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['username'])) {
     die("로그인 정보가 없습니다.");
 }
 
@@ -28,7 +29,7 @@ if (!$comment) {
     die("댓글을 찾을 수 없습니다.");
 }
 
-if ($comment['author_id'] != $_SESSION['user_id']) {
+if ($comment['author_id'] != $_SESSION['username']) {
     die("본인 댓글만 삭제 가능합니다.");
 }
 
