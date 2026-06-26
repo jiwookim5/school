@@ -1,0 +1,10 @@
+# uploads/.htaccess 파일 내용
+
+<FilesMatch "\.(php|php3|php4|php5|phtml|html|htm|js|jsp|asp|aspx|exe|sh|py)$">
+    # 1. 이 폴더 내부에서는 웹쉘 스크립트 실행을 전면 차단합니다.
+    php_flag engine off
+
+    # 2. 브라우저로 접근 시 실행하지 않고 무조건 다운로드 처리합니다.
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
+</FilesMatch>

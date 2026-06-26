@@ -52,8 +52,15 @@ if (!$post) { die("에러: 존재하지 않는 게시글입니다."); }
             $f_stmt->execute();
             $res = $f_stmt->get_result();
             while ($f = $res->fetch_assoc()) {
+                // 기존의 숫자_ 접두사 제거 로직 그대로 유지
                 $name = preg_replace('/^\d+_/', '', basename($f['file_path']));
-                echo "<a href='{$f['file_path']}' download>" . htmlspecialchars($name) . "</a><br>";
+                
+                /* 🛠️ 변경 핵심 포인트: 
+                  uploads/ 파일 경로로 직접 링크를 걸면 .htaccess 차단에 걸리므로,
+                  download.php 주소에 파일명만 파라미터로 실어서 안전하게 호출합니다.
+                */
+                $file_param = basename($f['file_path']);
+                echo "<a href='download.php?file={$file_param}'>" . htmlspecialchars($name) . "</a><br>";
             }
             ?>
         </div>
