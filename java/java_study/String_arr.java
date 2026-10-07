@@ -24,3 +24,18 @@ public class String_arr {  //클래스 안에
           System.out.println("제일 긴 스트링:" + longest);
     }
 }
+
+
+
+
+public class MyClass {
+
+    void Mymain();{
+        System.out.printf("hellow\n");
+    }
+
+    public static void main (String[] args) {
+        MyClass my = new MyClass;
+        my.Mymain;
+    }  
+}

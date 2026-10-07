@@ -1,5 +1,5 @@
 
-public class day_arr {
+public class Day_arr {
 public static void main(String[] args){
 
     int sum = 0, total = 0;
@@ -21,3 +21,5 @@ public static void main(String[] args){
     }
 }
  
+
+
