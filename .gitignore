@@ -1,0 +1,17 @@
+# 제외할 폴더/파일
+java/java_study/6주\ 북상속/
+java/java_study/상속\ 정리.md
+
+# Java
+*.class
+*.jar
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
