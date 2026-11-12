@@ -1,0 +1,28 @@
+import java.util.Scanner;
+class Animal {
+    String name;
+    public Animal(String name) {
+        this.name = name;
+    }
+class Dog extends Animal {
+    public Dog(String name) {
+        super(name);
+    }
+
+class MainRunner {
+    public static void main(String[] args) {
+            public void speak() {
+                System.out.println(name + "이 운다");
+            }
+        }
+            @Override
+            public void speak() {
+                System.out.println(name + "이 멍멍 운다");
+            }
+        }
+        Scanner sc = new Scanner(System.in);
+        String dogName = sc.nextLine();
+        Dog dog = new Dog(dogName);
+        dog.speak();
+            }
+}
